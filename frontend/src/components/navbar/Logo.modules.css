@@ -1,0 +1,33 @@
+.container {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+}
+
+.container:hover {
+    background-color: #fe4929;
+}
+
+.container:hover > * {
+    color: white;
+}
+
+.container > * {
+    display: flex;
+}
+
+.name {
+    color: #fe4929;
+    text-decoration: none;
+}
+
+.container a {
+    text-decoration: none;
+}
+
+.cook {
+    width: 2rem;
+    height: 2rem;
+    color: #fe4929;
+    padding: 1rem;
+}
