@@ -3,9 +3,10 @@ import { OrderModel } from "../models/order.model.js";
 import { OrderStatus } from "../constants/orderStatus.js";
 import { UserModel } from "../models/user.model.js";
 import { sendEmailReceipt } from "../helpers/mail.helper.js";
+import handler from "express-async-handler";
 
-export const create = async (req, res) => {
-    const order = req.bdoy;
+export const create = handler(async (req, res) => {
+    const order = req.body;
     if (order.items.length <= 0) res.status(BAD_REQUEST).send("Cart is Empty");
 
     await OrderModel.deleteOne({
@@ -16,9 +17,9 @@ export const create = async (req, res) => {
     const newOrder = new OrderModel({ ...order, user: req.user.id });
     await newOrder.save();
     res.send(newOrder);
-};
+});
 
-export const pay = async (req, res) => {
+export const pay = handler(async (req, res) => {
     const { paymentId } = req.body;
 
     const order = await getNewOrderForCurrentUser(req);
@@ -33,9 +34,9 @@ export const pay = async (req, res) => {
 
     sendEmailReceipt(order);
     res.send(order._id);
-};
+});
 
-export const trackOrder = async (req, res) => {
+export const trackOrder = handler(async (req, res) => {
     const { orderId } = req.params;
     const user = await UserModel.find.findById(req.user.id);
 
@@ -50,20 +51,20 @@ export const trackOrder = async (req, res) => {
     const order = await OrderModel.findOne(filter);
     if (!order) return res.send(UNAUTHORIZED);
     return res.send(order);
-};
+});
 
-export const newOrderForCurrentUser = async (req, res) => {
+export const newOrderForCurrentUser = handler(async (req, res) => {
     const order = await getNewOrderForCurrentUser(req);
     if (order) res.send(order);
     else res.status(BAD_REQUEST).send();
-};
+});
 
-export const allStatus = (req, res) => {
+export const allStatus = handler((req, res) => {
     const allStatus = Object.values(OrderStatus);
     res.send(allStatus);
-};
+});
 
-export const status = async (req, res) => {
+export const status = handler(async (req, res) => {
     const status = req.params.status;
     const user = await UserModel.findById(req.user.id);
     const filter = {};
@@ -73,7 +74,7 @@ export const status = async (req, res) => {
 
     const orders = await OrderModel.find(filter).sort("-createdAt");
     res.send(orders);
-};
+});
 
 const getNewOrderForCurrentUser = async (req) =>
     await OrderModel.findOne({
