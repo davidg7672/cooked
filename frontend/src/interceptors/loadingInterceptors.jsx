@@ -1,6 +1,6 @@
 import axios from "axios";
 
-function loadingInterceptors({ showLoading, hideLoading }) {
+function LoadingInterceptors({ showLoading, hideLoading }) {
     axios.interceptors.request.use(
         (req) => {
             if (!(req.data instanceof FormData)) showLoading();
@@ -24,4 +24,4 @@ function loadingInterceptors({ showLoading, hideLoading }) {
     );
 }
 
-export default loadingInterceptors;
+export default LoadingInterceptors;
