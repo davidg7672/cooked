@@ -2,13 +2,22 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import classes from "./search.module.css";
 
+/**
+ * Search Component
+ *
+ * A reusable search input that updates the URL based on user input.
+ * Supports customizable routing and styling via props.
+ *
+ */
 function Search({
     searchRoute = "/search/",
     defaultRoute = "/",
     margin,
     placeholder = "Search Food",
 }) {
+    // state for storing input
     const [term, setTerm] = useState("");
+    // navigation from router-dom and params from route path
     const navigate = useNavigate();
     const { searchTerm } = useParams();
 
