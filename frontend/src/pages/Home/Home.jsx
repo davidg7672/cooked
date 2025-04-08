@@ -1,36 +1,63 @@
-import React, { useEffect } from "react";
-import { useReducer } from "react";
-import { getFood } from "../../tasks/foodTasks";
-import Card from "../../components/card/Card";
-import Error from "../../components/error/Error";
+import React, { useEffect, useReducer } from "react";
+import { useParams } from "react-router-dom";
+import Search from "../../components/search/Search";
+import Tags from "../../components/tags/Tag";
+import Thumbnails from "../../components/thumbnails/Thumbnails";
+import NotFound from "../../components/NotFound/NotFound";
+import {
+    getAll,
+    getAllByTag,
+    getAllTags,
+    search,
+} from "../../services/foodService";
 
-const initState = { foods: [] };
+// empty states
+const initialState = { foods: [], tags: [] };
+
 const reducer = (state, action) => {
     switch (action.type) {
         case "FOODS_LOADED":
             return { ...state, foods: action.payload };
+        case "TAGS_LOADED":
+            return { ...state, tags: action.payload };
         default:
             return state;
     }
 };
 
-const Home = () => {
-    const [state, dispatch] = useReducer(reducer, initState);
-    const { foods } = state;
+function Home() {
+    // reducer used to manage state of foods changing
+    const [state, dispatch] = useReducer(reducer, initialState);
+    const { foods, tags } = state;
 
+    // extra route parameters for dynamic data loading
+    const { searchTerm, tag } = useParams();
+
+    // fetching tags and foods
     useEffect(() => {
-        getFood()
-            .then((foods) => dispatch({ type: "FOODS_LOADED", payload: foods }))
-            .catch((err) => console.error(err));
-    }, []);
+        getAllTags().then((tags) =>
+            dispatch({ type: "TAGS_LOADED", payload: tags })
+        );
+
+        const loadFoods = tag
+            ? getAllByTag(tag)
+            : searchTerm
+            ? search(searchTerm)
+            : getAll();
+
+        loadFoods.then((foods) =>
+            dispatch({ type: "FOODS_LOADED", payload: foods })
+        );
+    }, [searchTerm, tag]); // updates when search term or tag changes
 
     return (
         <>
-            {/* no food */}
-            {foods.length === 0 && <Error />}
-            <Card foods={foods} />
+            <Search />
+            <Tags tags={tags} />
+            {foods.length === 0 && <NotFound linkText="Reset Search" />}
+            <Thumbnails foods={foods} />
         </>
     );
-};
+}
 
 export default Home;
